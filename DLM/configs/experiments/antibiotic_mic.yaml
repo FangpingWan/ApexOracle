@@ -1,0 +1,24 @@
+# @package _global_
+
+# Experiment-specific configuration for antibiotic MIC optimization
+# Usage: python main.py +experiments=antibiotic_mic
+
+# Override sampling parameters for antibiotic generation
+sampling:
+  target_MIC: 1.0  # Target MIC value for optimization (μg/mL)
+  target_MIC_max: 512.0  # Maximum MIC value for scaling
+  gaussian_sigma_min: 0.01  # Minimum Gaussian sigma for noisy regression guidance
+  gaussian_sigma_max: 1.0  # Maximum Gaussian sigma for noisy regression guidance
+  strain: "Escherichia_coli_ATCC_25922"  # Bacterial strain identifier for conditional generation
+
+  # Genome and text embedding paths for test strains
+  genome_test_emb_dir_path:
+    ATCC_genome_emb: "/data1/fangping/ApexOracle/DataPrepare/Data/Genome_embs/ATCC"
+    ATCC_text_emb: "/data1/fangping/ApexOracle/DataPrepare/Data/Text_embs/ATCC"
+    only_text_emb: "/data1/fangping/ApexOracle/DataPrepare/Data/Text_embs/wo_ATCC"
+
+# Use antibiotic-specific guidance
+guidance:
+  method: cbg_antibiotic_remdm_loop
+  reg_guide_weight: 1.0
+  cls_guide_weight: 0.0

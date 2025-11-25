@@ -1,0 +1,10 @@
+train: SELFIES-train #doesn't matter actually, override in dataloader.py
+valid: SELFIES-valid #doesn't matter actually, override in dataloader.py
+tokenizer_name_or_path: SELFIES_DIY
+cache_dir: /data1/fangping/dlm/SELFIES/data #doesn't matter actually, override in dataloader.py
+wrap: True
+streaming: False
+
+# Classification/Regression parameters
+num_classes: 2  # For binary classification (e.g., active/inactive). Set to 1 for regression tasks
+label_col: MIC_threshold  # Column name containing labels in dataset

@@ -1,0 +1,18 @@
+# @package _global_
+
+# Experiment-specific configuration for synergy prediction
+# Usage: python main.py +experiments=synergy
+
+# Override sampling parameters for synergy experiments
+sampling:
+  synergy_mol_emb_dict_path: "/data1/fangping/ApexOracle/DataPrepare/Data/synergy_mol_embeddings.pkl"
+  synergy_mol_name: "ciprofloxacin"  # Name of antibiotic for synergy prediction
+
+# Use synergy-specific guidance
+guidance:
+  method: cbg_synergy
+  reg_guide_weight: 1.0
+  cls_guide_weight: 0.5
+
+# Use synergy-specific classifier backbone
+classifier_backbone: dit_synergy_cls_AMP

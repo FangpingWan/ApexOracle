@@ -1,0 +1,11 @@
+name: dit_amp
+type: dit_AMP
+hidden_size: 768
+cond_dim: 128
+length: ${model.length}  # Same length as diffusion model
+n_blocks: 12
+n_heads: 12
+scale_by_sigma: True
+dropout: 0.1
+num_classes: 1  # For regression tasks (MIC prediction)
+pooling: cls  # Use CLS token for pooling
