@@ -655,8 +655,8 @@ if __name__ == '__main__':
                             outputs = mdlm_model(input_ids=input_ids, attention_mask=attention_mask)
 
                             mol_cls_embedding = outputs[:, 0, :]
-                            mol_cls_embedding_genome, _ = co_cross_attn_genome(mol_cls_embedding, padded_genome_embeddings, 1 - genome_attn_masks)
-                            mol_cls_embedding_text, _ = co_cross_attn_text(mol_cls_embedding, padded_text_embeddings, 1 - text_attn_masks)
+                            mol_cls_embedding_genome = co_cross_attn_genome(mol_cls_embedding, padded_genome_embeddings, 1 - genome_attn_masks)
+                            mol_cls_embedding_text = co_cross_attn_text(mol_cls_embedding, padded_text_embeddings, 1 - text_attn_masks)
                             mol_cls_embedding = torch.cat((mol_cls_embedding_genome.reshape(-1, 8192), mol_cls_embedding_text.reshape(-1, 4096)), dim=1)
                             logits = reg_head(mol_cls_embedding).squeeze()
                             loss = criterion(logits, labels.squeeze())
@@ -716,10 +716,10 @@ if __name__ == '__main__':
                             mol_cls_embedding = outputs[:, 0, :]
                             padded_genome_embeddings = learnable_embedding_weight[:, None, :].expand(mol_cls_embedding.shape[0], 1, -1)
                             genome_attn_masks = torch.from_numpy(np.array([1]))[None, :].expand(mol_cls_embedding.shape[0], -1).to(device)
-                            mol_cls_embedding_genome, _ = co_cross_attn_genome(mol_cls_embedding, padded_genome_embeddings, 1 - genome_attn_masks)
+                            mol_cls_embedding_genome = co_cross_attn_genome(mol_cls_embedding, padded_genome_embeddings, 1 - genome_attn_masks)
                             # 把 learnable embedding 的 batch 纬 expand 作为 genome embedding 的替换
                             # mol_cls_embedding_genome = learnable_embedding_weight.expand(mol_cls_embedding.shape[0], -1)
-                            mol_cls_embedding_text, _ = co_cross_attn_text(mol_cls_embedding, padded_text_embeddings, 1 - text_attn_masks)
+                            mol_cls_embedding_text = co_cross_attn_text(mol_cls_embedding, padded_text_embeddings, 1 - text_attn_masks)
                             mol_cls_embedding = torch.cat((mol_cls_embedding_genome.reshape(-1, 8192), mol_cls_embedding_text.reshape(-1, 4096)), dim=1)
                             logits = reg_head(mol_cls_embedding).squeeze()
                             loss = criterion(logits, labels.squeeze())

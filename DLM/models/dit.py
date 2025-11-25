@@ -22,6 +22,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 import apexoracle_layers
+import predictor_utils
 # Flags required to enable jit fusion kernels
 torch._C._jit_set_profiling_mode(False)
 torch._C._jit_set_profiling_executor(False)
@@ -506,9 +507,7 @@ class DITClassifier(nn.Module):
         DDiTBlock(config.classifier_model.hidden_size,
                   config.classifier_model.n_heads,
                   config.classifier_model.cond_dim,
-                  dropout=config.classifier_model.dropout,
-                  causal=self.causal,
-                  use_adaLN=use_adaLN))
+                  dropout=config.classifier_model.dropout))
     self.blocks = nn.ModuleList(blocks)
 
     self.scale_by_sigma = config.classifier_model.scale_by_sigma
@@ -597,9 +596,7 @@ class DITClassifier_AMP(nn.Module):
         DDiTBlock(config.classifier_model.hidden_size,
                   config.classifier_model.n_heads,
                   config.classifier_model.cond_dim,
-                  dropout=config.classifier_model.dropout,
-                  causal=self.causal,
-                  use_adaLN=use_adaLN))
+                  dropout=config.classifier_model.dropout))
     self.blocks = nn.ModuleList(blocks)
 
     self.co_cross_attn_genome = apexoracle_layers.FirstTokenAttention_genome(config.classifier_model.hidden_size,
@@ -643,15 +640,15 @@ class DITClassifier_AMP(nn.Module):
 
 
   def load_genome_test_embedding(self):
-    ATCC_genome_emb_dict = apexoracle_layers.load_all_genome_embeddings(Path(self.config.sampling.genome_test_emb_dir_path.ATCC_genome_emb),
+    ATCC_genome_emb_dict = predictor_utils.load_all_genome_embeddings(Path(self.config.sampling.genome_test_emb_dir_path.ATCC_genome_emb),
                                                                             1e14,
                                                                             'cpu',
                                                                             'ATCC genome embedding')
-    ATCC_text_emb_dict = apexoracle_layers.load_all_genome_embeddings(Path(self.config.sampling.genome_test_emb_dir_path.ATCC_text_emb),
+    ATCC_text_emb_dict = predictor_utils.load_all_genome_embeddings(Path(self.config.sampling.genome_test_emb_dir_path.ATCC_text_emb),
                                                                             1,
                                                                             'cpu',
                                                                             'ATCC text embedding')
-    text_only_emb_dict = apexoracle_layers.load_text_wo_genome_embeddings(Path(self.config.sampling.genome_test_emb_dir_path.only_text_emb),
+    text_only_emb_dict = predictor_utils.load_text_wo_genome_embeddings(Path(self.config.sampling.genome_test_emb_dir_path.only_text_emb),
                                                                             1,
                                                                             'cpu',
                                                                             'text only embedding')
@@ -892,15 +889,15 @@ class DIT_Reg_Cls_AMP(nn.Module):
 
 
   def load_genome_test_embedding(self):
-    ATCC_genome_emb_dict = apexoracle_layers.load_all_genome_embeddings(Path(self.config.sampling.genome_test_emb_dir_path.ATCC_genome_emb),
+    ATCC_genome_emb_dict = predictor_utils.load_all_genome_embeddings(Path(self.config.sampling.genome_test_emb_dir_path.ATCC_genome_emb),
                                                                             1e14,
                                                                             'cpu',
                                                                             'ATCC genome embedding')
-    ATCC_text_emb_dict = apexoracle_layers.load_all_genome_embeddings(Path(self.config.sampling.genome_test_emb_dir_path.ATCC_text_emb),
+    ATCC_text_emb_dict = predictor_utils.load_all_genome_embeddings(Path(self.config.sampling.genome_test_emb_dir_path.ATCC_text_emb),
                                                                             1,
                                                                             'cpu',
                                                                             'ATCC text embedding')
-    text_only_emb_dict = apexoracle_layers.load_text_wo_genome_embeddings(Path(self.config.sampling.genome_test_emb_dir_path.only_text_emb),
+    text_only_emb_dict = predictor_utils.load_text_wo_genome_embeddings(Path(self.config.sampling.genome_test_emb_dir_path.only_text_emb),
                                                                             1,
                                                                             'cpu',
                                                                             'text only embedding')
@@ -1199,15 +1196,15 @@ class DIT_Syn_Cls_Pep_Cls_AMP(nn.Module):
 
 
   def load_genome_test_embedding(self):
-    ATCC_genome_emb_dict = apexoracle_layers.load_all_genome_embeddings(Path(self.config.sampling.genome_test_emb_dir_path.ATCC_genome_emb),
+    ATCC_genome_emb_dict = predictor_utils.load_all_genome_embeddings(Path(self.config.sampling.genome_test_emb_dir_path.ATCC_genome_emb),
                                                                             1e14,
                                                                             'cpu',
                                                                             'ATCC genome embedding')
-    ATCC_text_emb_dict = apexoracle_layers.load_all_genome_embeddings(Path(self.config.sampling.genome_test_emb_dir_path.ATCC_text_emb),
+    ATCC_text_emb_dict = predictor_utils.load_all_genome_embeddings(Path(self.config.sampling.genome_test_emb_dir_path.ATCC_text_emb),
                                                                             1,
                                                                             'cpu',
                                                                             'ATCC text embedding')
-    text_only_emb_dict = apexoracle_layers.load_text_wo_genome_embeddings(Path(self.config.sampling.genome_test_emb_dir_path.only_text_emb),
+    text_only_emb_dict = predictor_utils.load_text_wo_genome_embeddings(Path(self.config.sampling.genome_test_emb_dir_path.only_text_emb),
                                                                             1,
                                                                             'cpu',
                                                                             'text only embedding')

@@ -123,4 +123,3 @@ class FirstTokenAttention_genome(nn.Module):
 
 
 
-# 总行数: 110

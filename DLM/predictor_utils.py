@@ -6,9 +6,9 @@ This module contains:
 - Data processing functions
 - Collate functions for DataLoader
 - Helper functions for clustering and mapping
+- Embedding loading functions (load_all_genome_embeddings, load_text_wo_genome_embeddings)
 
-Note: RegressionHead, FirstTokenAttention_genome, load_all_genome_embeddings,
-and load_text_wo_genome_embeddings are imported from apexoracle_layers.py to avoid duplication.
+Note: RegressionHead and FirstTokenAttention_genome are imported from apexoracle_layers.py to avoid duplication.
 """
 
 from pathlib import Path
@@ -46,9 +46,7 @@ import ast
 import apexoracle_layers
 from apexoracle_layers import (
     RegressionHead,
-    FirstTokenAttention_genome,
-    load_all_genome_embeddings,
-    load_text_wo_genome_embeddings
+    FirstTokenAttention_genome
 )
 
 # current_directory = Path(__file__).parent
@@ -854,3 +852,50 @@ def merge_dict(dict_1, dict_2):
             merged_dict[key] = list(value)
 
     return merged_dict
+
+
+def load_all_genome_embeddings(embeddings_folder_path, scale, device, desc_str):
+    """
+    返回一个 genome ID 到 Evo2 embedding 字典
+    :param embeddings_folder_path: 保存 Genome 的 Evo2 embed 的文件夹路径
+    :param scale: Evo2 的 embedding 量级大概在 1e-15 左右，和模型参数 1e-2 左右的量级差太多了，所以需要缩放匹配
+    :param device: 提前将所有的 Evo2 embedding 载入到显存之中，减少加载时间
+    :return: dict  e.g. {'25922': torch.tensor([...], dtype=torch.bfloat16), ...}
+    """
+    file_paths = [embeddings_folder_path / f.name for f in embeddings_folder_path.iterdir() if f.is_file()]
+    embeddings_dict = {}
+    for file_path in tqdm(file_paths, desc=f' loading {desc_str} embeddings ... '):
+        embedding = torch.load(file_path).to(device)
+        file_name = file_path.name.split('.')[0]
+        if 'ATCC' in file_name:
+            file_name = file_name.split('ATCC')[-1]
+            components = file_name.split('_')[1:]
+            if len(components) == 2:
+                ID = '-'.join(components)
+            else:
+                ID = components[0]
+        else:
+            # 自己下载的情况
+            ID = file_name
+        embeddings_dict[ID] = embedding * scale
+
+    return embeddings_dict
+
+
+def load_text_wo_genome_embeddings(embeddings_folder_path, scale, device, desc_str):
+    """
+    返回一个 genome ID 到 Evo2 embedding 字典
+    :param embeddings_folder_path: 保存 Genome 的 Evo2 embed 的文件夹路径
+    :param scale: Evo2 的 embedding 量级大概在 1e-15 左右，和模型参数 1e-2 左右的量级差太多了，所以需要缩放匹配
+    :param device: 提前将所有的 Evo2 embedding 载入到显存之中，减少加载时间
+    :return: dict  e.g. {'25922': torch.tensor([...], dtype=torch.bfloat16), ...}
+    """
+    file_paths = [embeddings_folder_path / f.name for f in embeddings_folder_path.iterdir() if f.is_file()]
+    embeddings_dict = {}
+    for file_path in tqdm(file_paths, desc=f' loading {desc_str} embeddings ... '):
+        embedding = torch.load(file_path).to(device)
+        file_name = file_path.name.split('.pt')[0]
+        strain_name = file_name.replace('～', ' ').replace('^', '/')
+        embeddings_dict[strain_name] = embedding * scale
+
+    return embeddings_dict
